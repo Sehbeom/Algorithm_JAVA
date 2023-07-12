@@ -12,44 +12,27 @@ public class Main {
         String str1 = in.readLine();
         String str2 = in.readLine();
 
-        String shorter = "";
-        String longer = "";
-
-        if (str1.length() <= str2.length()) {
-            shorter = str1;
-            longer = str2;
-        } else {
-            shorter = str2;
-            longer = str1;
+        if (str1.equals(str2)) {
+            System.out.println(str1.length());
+            return;
         }
 
-        int shortPtr = 0;
-        int longPtr = 0;
+        int[][] lcs = new int[str1.length() + 1][str2.length() + 1];
+
+        for (int i = 1; i <= str1.length(); i++) {
+            for (int j = 1; j <= str2.length(); j++) {
+                if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+                    lcs[i][j] = lcs[i - 1][j - 1] + 1;
+                } else {
+                    lcs[i][j] = Math.max(lcs[i - 1][j], lcs[i][j - 1]);
+                }
+            }
+        }
+
         int answer = 0;
-
-        while ((shortPtr < shorter.length()) && (longPtr < longer.length())) {
-            if (shorter.charAt(shortPtr) == longer.charAt(longPtr)) {
-                answer += 1;
-                shortPtr += 1;
-                longPtr += 1;
-            } else {
-                longPtr += 1;
-            }
-        }
-
-        if (shortPtr < shorter.length() && longPtr == longer.length()) {
-            while (shortPtr < shorter.length()) {
-                if (shorter.charAt(shortPtr) == longer.charAt(longPtr - 1)) {
-                    answer += 1;
-                }
-                shortPtr += 1;
-            }
-        } else if (shortPtr == shorter.length() && longPtr < longer.length()) {
-            while (longPtr < longer.length()) {
-                if (shorter.charAt(shortPtr - 1) == longer.charAt(longPtr)) {
-                    answer += 1;
-                }
-                longPtr += 1;
+        for (int i = 1; i <= str1.length(); i++) {
+            for (int j = 1; j <= str2.length(); j++) {
+                answer = Math.max(answer, lcs[i][j]);
             }
         }
 
