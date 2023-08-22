@@ -3,7 +3,6 @@ package boj.boj14890;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -24,57 +23,25 @@ public class Main {
             }
         }
 
-        int[][] rampInfo = new int[N][N];
+        boolean[][] rampRowInfo = new boolean[N][N];
+        boolean[][] rampColInfo = new boolean[N][N];
         int answer = 0;
-        boolean[] canRowPasses = new boolean[N];
-        boolean[] canColPasses = new boolean[N];
-
         for (int i = 0; i < N; i++) {
-            canRowPasses[i] = canOneRowPass(map, rampInfo, L, i);
-            canColPasses[i] = canOneColPass(map, rampInfo, L, i);
-
-            System.out.println("=========== i : " + i + " =============");
-            for (int j = 0; j < N; j++) {
-                System.out.println(Arrays.toString(rampInfo[j]));
+            if (canOneRowPass(map, rampRowInfo, L, i)) {
+                answer += 1;
             }
         }
 
-        boolean canMakeRampRow;
-        boolean canMakeRampCol;
-
         for (int i = 0; i < N; i++) {
-            canMakeRampRow = true;
-            canMakeRampCol = true;
-
-            if (canRowPasses[i]) {
-                for (int j = 0; j < N; j++) {
-                    if (rampInfo[i][j] > 1) {
-                        canMakeRampRow = false;
-                        break;
-                    }
-                }
-                if (canMakeRampRow) {
-                    answer += 1;
-                }
-            }
-
-            if (canColPasses[i]) {
-                for (int j = 0; j < N; j++) {
-                    if (rampInfo[j][i] > 1) {
-                        canMakeRampCol = false;
-                        break;
-                    }
-                }
-                if (canMakeRampCol) {
-                    answer += 1;
-                }
+            if (canOneColPass(map, rampColInfo, L, i)) {
+                answer += 1;
             }
         }
 
         System.out.println(answer);
     }
 
-    private static boolean canOneRowPass(int[][] map, int[][] rampInfo, int L, int row) {
+    private static boolean canOneRowPass(int[][] map, boolean[][] rampInfo, int L, int row) {
         for (int i = 0; i < map[0].length - 1; i++) {
             if ((map[row][i + 1] - map[row][i]) == 1) {
                 if (!canLayRampBack(map, rampInfo, L, new int[]{row, i}, true)) {
@@ -92,7 +59,7 @@ public class Main {
         return true;
     }
 
-    private static boolean canOneColPass(int[][] map, int[][] rampInfo, int L, int col) {
+    private static boolean canOneColPass(int[][] map, boolean[][] rampInfo, int L, int col) {
         for (int i = 0; i < map[0].length - 1; i++) {
             if ((map[i + 1][col] - map[i][col]) == 1) {
                 if (!canLayRampBack(map, rampInfo, L, new int[]{i, col}, false)) {
@@ -110,8 +77,12 @@ public class Main {
         return true;
     }
 
-    private static boolean canLayRampFront(int[][] map, int[][] rampInfo, int L, int[] start,
+    private static boolean canLayRampFront(int[][] map, boolean[][] rampInfo, int L, int[] start,
         boolean isRow) {
+        if (rampInfo[start[0]][start[1]]) {
+            return false;
+        }
+
         int curX = start[0];
         int curY = start[1];
         int value = map[curX][curY];
@@ -132,22 +103,30 @@ public class Main {
                 return false;
             }
 
+            if (rampInfo[curX][curY]) {
+                return false;
+            }
+
             len -= 1;
         }
 
         for (int i = 0; i < L; i++) {
             if (isRow) {
-                rampInfo[start[0]][start[1] + i] += 1;
+                rampInfo[start[0]][start[1] + i] = true;
             } else {
-                rampInfo[start[0] + i][start[1]] += 1;
+                rampInfo[start[0] + i][start[1]] = true;
             }
         }
 
         return true;
     }
 
-    private static boolean canLayRampBack(int[][] map, int[][] rampInfo, int L, int[] start,
+    private static boolean canLayRampBack(int[][] map, boolean[][] rampInfo, int L, int[] start,
         boolean isRow) {
+        if (rampInfo[start[0]][start[1]]) {
+            return false;
+        }
+
         int curX = start[0];
         int curY = start[1];
         int value = map[curX][curY];
@@ -168,14 +147,18 @@ public class Main {
                 return false;
             }
 
+            if (rampInfo[curX][curY]) {
+                return false;
+            }
+
             len -= 1;
         }
 
         for (int i = 0; i < L; i++) {
             if (isRow) {
-                rampInfo[start[0]][start[1] + i] += 1;
+                rampInfo[start[0]][start[1] - i] = true;
             } else {
-                rampInfo[start[0] + i][start[1]] += 1;
+                rampInfo[start[0] - i][start[1]] = true;
             }
         }
 
